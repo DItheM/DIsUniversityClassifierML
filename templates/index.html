@@ -1,0 +1,155 @@
+{% comment %} sample code to check endpoints {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <form action="/classify_university" method="post" id="form_1">
+      <label for="country">Country</label>
+      <input type="text" name="country" id="country" />
+
+      <label for="quality">Quality</label>
+      <input type="text" name="quality" id="quality" />
+
+      <label for="budget">Budget</label>
+      <input type="number" name="budget" id="budget" />
+
+      <button type="submit">Predict</button>
+    </form>
+
+    <div id="result"></div>
+    <div id="error_2"></div>
+
+    <div>
+      <h2>Recommended Programs</h2>
+      <table>
+        <tr>
+          <td>Foundation Courses:</td>
+          <td id="course_1"></td>
+        </tr>
+        <tr>
+          <td>Programming Courses:</td>
+          <td id="course_2"></td>
+        </tr>
+        <tr>
+          <td>Advanced Topics:</td>
+          <td id="course_3"></td>
+        </tr>
+        <tr>
+          <td>Mathematics And Theory:</td>
+          <td id="course_4"></td>
+        </tr>
+        <tr>
+          <td>Software Engineering And Project Management:</td>
+          <td id="course_5"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div>
+      <h2>Summarized Feedback</h2>
+      <p id="feedback"></p>
+    </div>
+
+    <div>
+      <h2>Predict Demand</h2>
+
+      <form action="/predict_demand" method="post" id="form_2">
+        <label for="job_title">Job Title</label>
+        <input type="text" name="job_title" id="job_title" />
+        <button type="submit">Predict</button>
+      </form>
+
+      <p id="graph"></p>
+      <p id="details"></p>
+      <p id="error_2"></p>
+    </div>
+
+    <script>
+      document
+        .getElementById("form_1")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const formData = new FormData(this);
+
+          fetch("/classify_university", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById(
+                "result"
+              ).textContent = `Predicted Institution: ${data.institution}`;
+              document.getElementById(
+                "course_1"
+              ).textContent = `${data.course_1}`;
+              document.getElementById(
+                "course_2"
+              ).textContent = `${data.course_2}`;
+              document.getElementById(
+                "course_3"
+              ).textContent = `${data.course_3}`;
+              document.getElementById(
+                "course_4"
+              ).textContent = `${data.course_4}`;
+              document.getElementById(
+                "course_5"
+              ).textContent = `${data.course_5}`;
+              document.getElementById(
+                "feedback"
+              ).textContent = `${data.feedback}`;
+              if (data.error) {
+                document.getElementById(
+                  "error_1"
+                ).textContent = `${data.error}`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        });
+
+      document
+        .getElementById("form_2")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const formData = new FormData(this);
+
+          fetch("/predict_demand", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const years = data.years;
+              const demand = data.demand;
+
+              var output = [];
+              for (let x = 0; x < years.length; x++) {
+                output.push(years[x] + " : " + demand[x]);
+              }
+              let text = output.join(", ");
+
+              document.getElementById("graph").textContent = `${text}`;
+              document.getElementById(
+                "details"
+              ).textContent = `Last 5 year demand : ${data.last_avg_demand}, Next 5 year demand: ${data.next_avg_demand}, Change: ${data.change}% ${data.direction}`;
+              if (data.error) {
+                document.getElementById(
+                  "error_2"
+                ).textContent = `${data.error}`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        });
+    </script>
+  </body>
+</html>

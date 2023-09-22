@@ -1,0 +1,24 @@
+h1, h3 {
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+.background {
+    background-image: url('./assets/background.jpeg'); /* Replace with the actual path to your image */
+    background-size: cover; /* Adjust to fit your needs */
+    background-repeat: no-repeat;
+    background-position: center center;
+    min-height: 100vh; /* Adjust to fit your needs */
+    padding: 20px;
+}
+
+/* Define the initial state */
+.hover_element {
+    transition: transform 0.2s; /* Add a smooth transition effect */
+  }
+  
+  /* Apply the scaling effect on hover */
+  .hover_element:hover {
+    transform: scale(1.05); /* Scale up to 110% of its original size */
+  }
+  

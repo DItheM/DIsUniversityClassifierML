@@ -1,0 +1,14 @@
+pip
+anaconda
+flask
+flask_cors
+pandas
+numpy
+sklearn
+torch
+simpletransformers
+matplotlib
+react
+bootstrap
+chart.js
+
