@@ -1,13 +1,21 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react'
 import { DropdownInput } from './DropdownInput'
 import { Card } from './Card'
 
 export const ClassifyUniversity = () => {
 
-  const [jsonData, setJsonData] = useState<any>({});
+  const [jsonData, setJsonData] = useState<any>(null);
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [loading, setLoading] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const [selectedInstitution, setSelectedInstitution] = useState("")
+
+  useEffect(() => {
+    if (jsonData) {
+      setSelectedInstitution(jsonData.institution[0])
+      setLoading(false);  
+    }
+  }, [jsonData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,7 +33,9 @@ export const ClassifyUniversity = () => {
     })
     .then((data) => {
       setJsonData(data)
-      setLoading(false);
+      // setSelectedInstitution(jsonData.institution[0])
+      // console.log(jsonData)
+      // setLoading(false);
     })
     .catch((error) => {
       console.error('Fetch error:', error);
@@ -67,7 +77,17 @@ export const ClassifyUniversity = () => {
           <div>
             <div>
               <h3>Recommended Institution:</h3>
-              <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-primary border-primary hover_element">{jsonData.institution}</h5>
+              <div className="container">
+                <div className="row justify-content-between mb-4">
+                  {jsonData.institution.map((item: string) => 
+                  <div className='col-4' key={item}>
+                    <a href="#" onClick={() => setSelectedInstitution(item)}>
+                      <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-primary border-primary hover_element">{item}</h5>
+                    </a>
+                  </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -75,26 +95,26 @@ export const ClassifyUniversity = () => {
             <h3>Recommended Programs:</h3>
             <div className="row">
               <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-primary hover_element' courseName={jsonData.course_1} description={jsonData.course_desc_1} header='Foundation Courses'/>
+                <Card className='card text-bg-primary hover_element' courseName={jsonData.data[selectedInstitution].courses[0]} description={jsonData.data[selectedInstitution].descriptions[0]} header='Foundation Courses' institution={selectedInstitution}/>
               </div>
               <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-secondary hover_element' courseName={jsonData.course_2} description={jsonData.course_desc_2} header='Programming Courses'/>
+                <Card className='card text-bg-secondary hover_element' courseName={jsonData.data[selectedInstitution].courses[1]} description={jsonData.data[selectedInstitution].descriptions[1]} header='Programming Courses' institution={selectedInstitution}/>
               </div>
               <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-success hover_element' courseName={jsonData.course_3} description={jsonData.course_desc_3} header='Advanced Topics'/>
+                <Card className='card text-bg-success hover_element' courseName={jsonData.data[selectedInstitution].courses[2]} description={jsonData.data[selectedInstitution].descriptions[2]} header='Advanced Topics' institution={selectedInstitution}/>
               </div>
               <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-danger hover_element' courseName={jsonData.course_4} description={jsonData.course_desc_4} header='Mathematics And Theory'/>
+                <Card className='card text-bg-danger hover_element' courseName={jsonData.data[selectedInstitution].courses[3]} description={jsonData.data[selectedInstitution].descriptions[3]} header='Mathematics And Theory' institution={selectedInstitution}/>
               </div>
               <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-dark hover_element' courseName={jsonData.course_5} description={jsonData.course_desc_5} header='Software Engineering And Project Management'/>
+                <Card className='card text-bg-dark hover_element' courseName={jsonData.data[selectedInstitution].courses[4]} description={jsonData.data[selectedInstitution].descriptions[4]} header='Software Engineering And Project Management' institution={selectedInstitution}/>
               </div>
             </div>
           </div>
 
           <div>
             <h3>Summarized Feedback:</h3>
-            <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-primary border-primary hover_element">{jsonData.feedback}</h5>
+            <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-primary border-primary hover_element">{jsonData.data[selectedInstitution].feedback}</h5>
             <p>(Based on user reviews)</p>
           </div>
         </div>

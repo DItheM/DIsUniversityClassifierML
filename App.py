@@ -1,5 +1,6 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+import numpy as np
 import joblib
 import json
 
@@ -45,6 +46,10 @@ with open('json_data/job_roles.json', 'r') as file:
 with open('json_data/course_descriptions.json', 'r') as file:
     course_description_data = json.load(file)
     file.close
+    
+with open('json_data/CountryAndUni.json', 'r') as file:
+    country_uni_data = json.load(file)
+    file.close
 
 
 def limitLines(summary):
@@ -80,40 +85,46 @@ def classify_university():
 
         country_index = country_data[country]
         quality_score = score_levels[quality]
-
-        institution_prediction = university_classifier_model.predict(
-            [[country_index, quality_score, budget]])
-        institution = institution_prediction[0]
-        institution_index = institution_data[institution]
-
-        course_levels = [0, 1, 2, 3, 4]
-        predicted_courses = []
-        course_description = []
-        for course_level in course_levels:
-            course_prediction = program_recommender_model.predict(
-                [[institution_index, course_level, 5]])
-            course_description.append(course_description_data[course_prediction[0]])
-            predicted_courses.append(course_prediction[0])
-
-        summarized_feedback = getSummary(institution_index)
+        
+        institution_predictions = []
+        for _ in range(int(budget / 1000)):
+            if len(institution_predictions) == 3 or budget == 44000:
+                break
+            institution_prediction = university_classifier_model.predict(
+                [[country_index, quality_score, budget]])[0]
+            if (institution_prediction not in institution_predictions) and (institution_prediction in country_uni_data[country]):
+                institution_predictions.append(institution_prediction)
+            budget -= 1000
+        
+        
+        data = {}      
+        for institution in institution_predictions:   
+            institution_index = institution_data[institution]
+            course_levels = [0, 1, 2, 3, 4]
+            predicted_courses = []
+            course_description = []
+            for course_level in course_levels:
+                course_prediction = program_recommender_model.predict(
+                    [[institution_index, course_level, 5]])
+                course_description.append(course_description_data[course_prediction[0]])
+                predicted_courses.append(course_prediction[0])
+            summarized_feedback = getSummary(institution_index)
+            
+            data[institution] = {
+                "courses": predicted_courses,
+                "descriptions": course_description,
+                "feedback": summarized_feedback
+            }
+            
+            
 
         response_data = {
-            "institution": institution,
-            "course_1": predicted_courses[0],
-            "course_2": predicted_courses[1],
-            "course_3": predicted_courses[2],
-            "course_4": predicted_courses[3],
-            "course_5": predicted_courses[4],
-            "course_desc_1": course_description[0],
-            "course_desc_2": course_description[1],
-            "course_desc_3": course_description[2],
-            "course_desc_4": course_description[3],
-            "course_desc_5": course_description[4],
-            "feedback": summarized_feedback
+            "institution": institution_predictions,
+            "data": data
         }
         print(country, quality, budget)
         print(response_data)
-        return response_data
+        return jsonify(response_data)
 
     except Exception as e:
         return {"error_1": str(e)}, 500
