@@ -1,16 +1,21 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { DropdownInput } from './DropdownInput'
 import LineChartComponent from './LineChartComponent';
 
 export const PredictDemand = () => {
 
-    const [jsonData, setJsonData] = useState<any>({});
+  const [jsonData, setJsonData] = useState<any>(null);
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [loading, setLoading] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
 
+  const [labels, setLabels] = useState<string[]>([]);
+  const [datasets, setDatasets] = useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoaded(false);
     setLoading(true);
     setIsPressed(true);
 
@@ -59,6 +64,35 @@ export const PredictDemand = () => {
     "Data Engineer", 
     "AI/Machine Learning Engineer"]
 
+    useEffect(() => {
+      if (jsonData) {
+        const labels = jsonData.years;
+        const demandData = jsonData.demand;
+    
+        // Define the index where the color changes (2023 is index 23)
+        const colorChangeIndex = 23;
+    
+        // Create an array of colors
+        const colors = labels.map((_: string, index: number) => {
+          // Use a different color for data from 2023 onwards
+          return index >= colorChangeIndex ? 'rgba(255, 0, 0, 1)' : 'rgba(75, 192, 192, 1)';
+        });
+    
+        // Create datasets with data and colors
+        const datasets = [
+          {
+            label: 'Demand',
+            data: demandData,
+            borderColor: colors
+          },
+        ];
+        setLabels(labels);
+        setDatasets(datasets);
+        setIsLoaded(true);
+      }
+    }, [jsonData])
+
+
   return (
     <div>
 
@@ -74,7 +108,9 @@ export const PredictDemand = () => {
                 <div className="card text-center" style={{marginTop: "10px", marginBottom: "20px"}}>
                     <h5 className="card-title card-header">Demand Chart</h5>
                     <div className="card-body">  
-                    <LineChartComponent labels={jsonData.years} values={jsonData.demand}/>
+                    {(isLoaded) && (
+                      <LineChartComponent labels={labels} datasets={datasets} />
+                    )}
                     </div>
                 </div>
                 

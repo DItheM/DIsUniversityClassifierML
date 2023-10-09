@@ -50,6 +50,10 @@ with open('json_data/course_descriptions.json', 'r') as file:
 with open('json_data/CountryAndUni.json', 'r') as file:
     country_uni_data = json.load(file)
     file.close
+    
+with open('json_data/raw_demand.json', 'r') as file:
+    raw_demand_data = json.load(file)
+    file.close
 
 
 def limitLines(summary):
@@ -138,22 +142,17 @@ def predict_demand():
         demand_array = []
         years_array = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015,
                        2016, 2017, 2018, 2019, 2020, 2021, 2022]
+        future_years_array = [2023, 2024, 2025, 2026, 2027]
 
-        for year in years_array:
-            demand_prediction = demand_predictor_model.predict(
-                [[year, role_index]])
-            demand_array.append(round(demand_prediction[0], 2))
-
-        next_total_demand = 0
-        latest_year = years_array[len(years_array) - 1]
-
-        for _ in range(5):
-            latest_year += 1
-            prediction = demand_predictor_model.predict(
-                [[latest_year, role_index]])
-            next_total_demand += prediction[0]
-
-        next_avg_demand = round(next_total_demand / 5, 2)
+        with open('json_data/raw_demand.json', 'r') as file:
+            raw_demand_data = json.load(file)
+            file.close
+        
+        raw_demand = raw_demand_data[role_index] 
+        
+        for raw_dem in raw_demand:
+            demand_array.append(round(raw_dem, 2))
+        
 
         i = 18
         last_total_demand = 0
@@ -162,8 +161,20 @@ def predict_demand():
             i += 1
 
         last_avg_demand = round(last_total_demand / 5, 2)
+        
+        
+        next_total_demand = 0
+        latest_year = years_array[len(years_array) - 1]
+        for _ in range(5):
+            latest_year += 1
+            prediction = demand_predictor_model.predict(
+                [[latest_year, role_index]])
+            demand_array.append(prediction[0])
+            next_total_demand += prediction[0]
 
-        change = abs(round(next_avg_demand - last_avg_demand, 2))
+        next_avg_demand = round(next_total_demand / 5, 2)
+
+        change = round(next_avg_demand - last_avg_demand, 2)
 
         direction = ""
         if change < 0:
@@ -173,7 +184,7 @@ def predict_demand():
 
         response_data = {
             "change": change,
-            "years": years_array,
+            "years": years_array + future_years_array,
             "demand": demand_array,
             "last_avg_demand": last_avg_demand,
             "next_avg_demand": next_avg_demand,

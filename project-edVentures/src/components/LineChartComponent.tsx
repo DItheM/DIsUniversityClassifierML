@@ -3,7 +3,11 @@ import Chart from 'chart.js/auto';
 
 interface Props {
   labels: string[];
-  values: number[];
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor: string
+  }[];
 }
 
 class LineChartComponent extends Component<Props> {
@@ -23,20 +27,17 @@ class LineChartComponent extends Component<Props> {
       this.chartInstance.destroy();
     }
 
-
     this.chartInstance = new Chart(ctx!, {
       type: 'line',
       data: {
         labels: this.props.labels,
-        datasets: [
-          {
-            label: 'Demand Line',
-            data: this.props.values,
-            borderColor: 'rgba(75, 192, 192, 1)', // Line color
-            borderWidth: 2,
-            fill: false, 
-          },
-        ],
+        datasets: this.props.datasets.map((dataset) => ({
+          label: dataset.label,
+          data: dataset.data,
+          borderColor: dataset.borderColor,
+          borderWidth: 2,
+          fill: false,
+        })),
       },
       options: {
         scales: {
@@ -51,6 +52,8 @@ class LineChartComponent extends Component<Props> {
               display: true,
               text: 'Demand Increase(%)', // Set the label for the y-axis
             },
+            min: 0,    // Set the minimum value for the y-axis
+            max: 100,  // Set the maximum value for the y-axis
           },
         },
       },

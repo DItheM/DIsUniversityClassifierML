@@ -54,6 +54,16 @@ export const ClassifyUniversity = () => {
     // Update the state with the modified copy
     setFormData(newFormData);
   };
+
+  const setColor = (item: string) => {
+    const defaultClassName = "d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 hover_element";
+    if (selectedInstitution == item) {
+      return defaultClassName + " border-info text-info"
+    } else {
+      return defaultClassName + " border-primary texxt-primary"
+    }
+
+  }
   
 
   const country_data = {"USA": 0, "United Kingdom": 1, "Japan": 2, "Switzerland": 3, "Israel": 4, "South Korea": 5, "Canada": 6, "France": 7, "China": 8, "Taiwan": 9, "Russia": 10, "Singapore": 11, "Sweden": 12, "Denmark": 13, "Germany": 14, "Belgium": 15, "Netherlands": 16, "Australia": 17, "Norway": 18, "Finland": 19, "Italy": 20, "Spain": 21, "Brazil": 22, "South Africa": 23, "Hong Kong": 24, "Ireland": 25, "Austria": 26, "Portugal": 27, "New Zealand": 28, "Czech Republic": 29, "Greece": 30, "Thailand": 31, "Mexico": 32, "India": 33, "Argentina": 34, "Chile": 35, "Poland": 36, "Hungary": 37, "Iceland": 38, "Turkey": 39, "Malaysia": 40, "Slovenia": 41, "Estonia": 42, "Croatia": 43, "Saudi Arabia": 44, "Colombia": 45, "Lebanon": 46, "Slovak Republic": 47, "Iran": 48, "Serbia": 49, "Lithuania": 50, "Egypt": 51, "Bulgaria": 52, "Uruguay": 53, "Uganda": 54, "Cyprus": 55, "United Arab Emirates": 56, "Puerto Rico": 57, "Romania": 58}
@@ -82,7 +92,7 @@ export const ClassifyUniversity = () => {
                   {jsonData.institution.map((item: string) => 
                   <div className='col-4' key={item}>
                     <a href="#" onClick={() => setSelectedInstitution(item)}>
-                      <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-primary border-primary hover_element">{item}</h5>
+                      <h5 className={setColor(item)}>{item}</h5>
                     </a>
                   </div>
                   )}
