@@ -92,6 +92,16 @@ export const PredictDemand = () => {
       }
     }, [jsonData])
 
+    const setColor = () => {
+      const defaultClassName = "card-text d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-light hover_element";
+      if (jsonData.change >= 0) {
+        return defaultClassName + " bg-success"
+      } else {
+        return defaultClassName + " bg-danger"
+      }
+  
+    }
+
 
   return (
     <div>
@@ -116,11 +126,11 @@ export const PredictDemand = () => {
                 
 
                 <div className="card text-center hover_element" style={{marginTop: "10px", marginBottom: "20px"}}>
-                    <h5 className="card-title card-header">Demand Prediction For Next Five Years</h5>
+                    <h5 className="card-title card-header">Demand Prediction For Next Five Years | 2023 - 2027</h5>
                     <div className="card-body">  
-                        <p className="card-text text-primary hover_element">Last Five year demand: <b>{jsonData.last_avg_demand}%</b></p>
-                        <p className="card-text text-primary hover_element">Next Five year demand: <b>{jsonData.next_avg_demand}%</b></p>
-                        <h3 className="card-text d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 bg-warning hover_element">{jsonData.direction} {jsonData.change}%</h3>
+                        <p className="card-text text-primary hover_element">Last Five year demand (2017 - 2022): <b>{jsonData.last_avg_demand}%</b></p>
+                        <p className="card-text text-primary hover_element">Next Five year demand (2023 - 2027): <b>{jsonData.next_avg_demand}%</b></p>
+                        <h3 className={setColor()}>{jsonData.direction} {jsonData.change}%</h3>
                     </div>
                 </div>
             </div>

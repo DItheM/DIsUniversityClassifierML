@@ -35,6 +35,7 @@ class LineChartComponent extends Component<Props> {
           label: dataset.label,
           data: dataset.data,
           borderColor: dataset.borderColor,
+          backgroundColor: dataset.borderColor,
           borderWidth: 2,
           fill: false,
         })),
