@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react'
 import { DropdownInput } from './DropdownInput'
 import { Card } from './Card'
+import uniImage from '../assets/p1.png';
 
 export const ClassifyUniversity = () => {
 
@@ -8,21 +9,39 @@ export const ClassifyUniversity = () => {
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [loading, setLoading] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-  const [selectedInstitution, setSelectedInstitution] = useState("")
+  const [selectedInstitution, setSelectedInstitution] = useState("");
+  const [foundUniMsg, setFoundUniMsg] = useState("");
+
+  const [showAnimationDesc, setShowAnimationDesc] = useState(false);
+  const [showAnimationResults, setShowAnimationResults] = useState(false);
+  const [showAnimationOutResults, setShowAnimationOutResults] = useState(false);
+  const [showAnimationUnis, setShowAnimationUnis] = useState(false);
+  const [showAnimationOutUnis, setShowAnimationOutUnis] = useState(false);
 
   useEffect(() => {
     if (jsonData) {
       setSelectedInstitution(jsonData.institution[0])
+      if (jsonData.institution.length > 1) {
+        setFoundUniMsg(jsonData.institution.length + " Universities");
+      } else if (jsonData.institution.length == 1) {
+        setFoundUniMsg("a " + jsonData.institution.length + " University");
+      } else {
+        setFoundUniMsg(" 0 Universities");
+      }
       setLoading(false);  
+      setShowAnimationResults(true);
+      setShowAnimationUnis(true);
     }
   }, [jsonData]);
 
+  useEffect(() => {
+    setShowAnimationDesc(true);
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setIsPressed(true);
-
-    fetch('http://localhost:5000/classify_university', {
+    const fetchData = () => {
+      fetch('http://localhost:5000/classify_university', {
       method: 'POST',
       body: formData,
     }).then((response) => {
@@ -33,15 +52,22 @@ export const ClassifyUniversity = () => {
     })
     .then((data) => {
       setJsonData(data)
-      // setSelectedInstitution(jsonData.institution[0])
-      // console.log(jsonData)
-      // setLoading(false);
     })
     .catch((error) => {
       console.error('Fetch error:', error);
       setLoading(false);
       setIsPressed(false);
     });
+    }
+
+    if (isPressed == false) {
+      setLoading(true); 
+      setIsPressed(true);
+      fetchData();
+    } else {
+      setShowAnimationOutResults(true);
+      timeOut(() => {setLoading(true); setIsPressed(true); fetchData(); setShowAnimationUnis(false); setShowAnimationResults(false); setShowAnimationOutResults(false);}, 1000);
+    }
   };
   
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -60,9 +86,20 @@ export const ClassifyUniversity = () => {
     if (selectedInstitution == item) {
       return defaultClassName + " border-info text-info"
     } else {
-      return defaultClassName + " border-primary texxt-primary"
+      return defaultClassName + " border-primary text-primary"
     }
+  }
 
+  const timeOut = (myFunction: () => void, time: number) => {
+    const timeoutId = setTimeout(myFunction, time);
+    return () => clearTimeout(timeoutId);
+  }
+
+  const handleUniClick = (item: string) => {
+    if (selectedInstitution != item) {
+      setShowAnimationOutUnis(true);
+      timeOut(() => {setSelectedInstitution(item); setShowAnimationOutUnis(false); setShowAnimationUnis(true);}, 1000);
+    }
   }
   
 
@@ -71,61 +108,75 @@ export const ClassifyUniversity = () => {
   const budget_data = [45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000]
 
   return (
-    <div>
-        <h1>Classify University</h1>
-
-        <form className="input-group mb-3" onSubmit={handleSubmit}>
+    <div className={showAnimationDesc ? 'fade-in' : 'hide'}>
+      <div className="container-bg-1 rounded hover_element">
+        <div className="row">
+            <div className="col-md-6">
+              <h1 className='header-text'>Find The Best Suited University</h1>
+              <p className='sub-text'>You can seamlessly explore globally available universities tailored to your preferences. Discover the best-recommended programs within these institutions, while also benefiting from summarized user reviews that provide valuable insights into the university experience.</p>
+            </div>
+            <div className="col-md-6">
+                <img src={uniImage} alt="Image" className="img-fluid float-end" width='50%'/>
+            </div>
+        </div>
+      </div>
+        
+      <div className="form-container">
+        <form className="input-group mb-3 " onSubmit={handleSubmit}>
             <DropdownInput defaultMsg='Select Country' options={Object.keys(country_data)} name='country' handleChange={handleSelectChange}/>
             <DropdownInput defaultMsg='Select Quality' options={quality_data} name='quality' handleChange={handleSelectChange}/>
             <span className="input-group-text mb-3">$</span>
             <DropdownInput defaultMsg='Select Budget' options={budget_data} name='budget' handleChange={handleSelectChange}/>
-            <button className="btn btn-outline-secondary mb-3" type="submit">Classify University</button>
+            <button className="btn btn-outline-dark mb-3" type="submit">Classify University</button>
         </form>
+      </div>
 
       {(!loading && isPressed) && (
-        <div>
-          <div>
-            <div>
-              <h3>Recommended Institution:</h3>
-              <div className="container">
-                <div className="row justify-content-between mb-4">
+        <div className={showAnimationResults ? 'fade-in' : 'hide'}>
+          <div className={showAnimationOutResults ? 'fade-out' : ''}>
+            <div id='r_sec'>
+              <div className="container-bg-2 rounded hover_element">
+                <h5 className='sub-header-text'>We Found You {foundUniMsg}.</h5>
+                <div className="container">
                   {jsonData.institution.map((item: string) => 
-                  <div className='col-4' key={item}>
-                    <a href="#" onClick={() => setSelectedInstitution(item)}>
-                      <h5 className={setColor(item)}>{item}</h5>
+                    <a href="#r_sec" onClick={() => handleUniClick(item)} key={item}>
+                      <h5 className={setColor(item)} style={{marginRight: "20px"}}>{item}</h5>
                     </a>
-                  </div>
                   )}
                 </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            <h3>Recommended Programs:</h3>
-            <div className="row">
-              <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-primary hover_element' courseName={jsonData.data[selectedInstitution].courses[0]} description={jsonData.data[selectedInstitution].descriptions[0]} header='Foundation Courses' institution={selectedInstitution}/>
-              </div>
-              <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-secondary hover_element' courseName={jsonData.data[selectedInstitution].courses[1]} description={jsonData.data[selectedInstitution].descriptions[1]} header='Programming Courses' institution={selectedInstitution}/>
-              </div>
-              <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-success hover_element' courseName={jsonData.data[selectedInstitution].courses[2]} description={jsonData.data[selectedInstitution].descriptions[2]} header='Advanced Topics' institution={selectedInstitution}/>
-              </div>
-              <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-danger hover_element' courseName={jsonData.data[selectedInstitution].courses[3]} description={jsonData.data[selectedInstitution].descriptions[3]} header='Mathematics And Theory' institution={selectedInstitution}/>
-              </div>
-              <div className="col-sm-4 mb-3">
-                <Card className='card text-bg-dark hover_element' courseName={jsonData.data[selectedInstitution].courses[4]} description={jsonData.data[selectedInstitution].descriptions[4]} header='Software Engineering And Project Management' institution={selectedInstitution}/>
+            <div className={showAnimationUnis ? 'fade-in' : 'hide'}>
+              <div className={showAnimationOutUnis ? 'fade-out' : ''}>
+                <div className="container-bg-2 rounded hover_element">
+                  <h4 className='sub-header-text' style={{paddingBottom: "20px"}}>Recommended Programs For <b><i>{selectedInstitution}</i></b></h4>
+                  <div className="row">
+                    <div className="col-sm-4 mb-3">
+                      <Card className='card text-bg-primary hover_element' courseName={jsonData.data[selectedInstitution].courses[0]} description={jsonData.data[selectedInstitution].descriptions[0]} header='Foundation Courses' institution={selectedInstitution}/>
+                    </div>
+                    <div className="col-sm-4 mb-3">
+                      <Card className='card text-bg-secondary hover_element' courseName={jsonData.data[selectedInstitution].courses[1]} description={jsonData.data[selectedInstitution].descriptions[1]} header='Programming Courses' institution={selectedInstitution}/>
+                    </div>
+                    <div className="col-sm-4 mb-3">
+                      <Card className='card text-bg-success hover_element' courseName={jsonData.data[selectedInstitution].courses[2]} description={jsonData.data[selectedInstitution].descriptions[2]} header='Advanced Topics' institution={selectedInstitution}/>
+                    </div>
+                    <div className="col-sm-4 mb-3">
+                      <Card className='card text-bg-danger hover_element' courseName={jsonData.data[selectedInstitution].courses[3]} description={jsonData.data[selectedInstitution].descriptions[3]} header='Mathematics And Theory' institution={selectedInstitution}/>
+                    </div>
+                    <div className="col-sm-4 mb-3">
+                      <Card className='card text-bg-dark hover_element' courseName={jsonData.data[selectedInstitution].courses[4]} description={jsonData.data[selectedInstitution].descriptions[4]} header='Software Engineering And Project Management' institution={selectedInstitution}/>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="container-bg-2 rounded hover_element">
+                  <h3 className='sub-header-text'>Summarized Feedback</h3>
+                  <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-info border-primary">{jsonData.data[selectedInstitution].feedback}</h5>
+                  <p className='sub-text-2'>(Based on user reviews)</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div>
-            <h3>Summarized Feedback:</h3>
-            <h5 className="d-inline-flex focus-ring py-1 px-2 text-decoration-none border rounded-2 text-primary border-primary hover_element">{jsonData.data[selectedInstitution].feedback}</h5>
-            <p>(Based on user reviews)</p>
           </div>
         </div>
       )}

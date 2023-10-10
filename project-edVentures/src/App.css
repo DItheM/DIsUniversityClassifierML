@@ -1,24 +1,112 @@
-h1, h3 {
+@font-face {
+  font-family: 'plusjakartasans';
+  src: url('./assets/fonts/plusjakartasansregular.ttf') format('truetype');
+}
+
+* {
+  font-family: 'plusjakartasans', sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+h1 {
     padding-top: 10px;
     padding-bottom: 20px;
 }
 
 .background {
-    background-image: url('./assets/background.jpeg'); /* Replace with the actual path to your image */
-    background-size: cover; /* Adjust to fit your needs */
+    background-image: url('./assets/b6.jpeg');
+    background-size: cover; 
     background-repeat: no-repeat;
     background-position: center center;
-    min-height: 100vh; /* Adjust to fit your needs */
+    min-height: 100vh; 
     padding: 20px;
 }
 
-/* Define the initial state */
 .hover_element {
-    transition: transform 0.2s; /* Add a smooth transition effect */
+    transition: transform 0.2s; 
   }
   
-  /* Apply the scaling effect on hover */
-  .hover_element:hover {
-    transform: scale(1.05); /* Scale up to 110% of its original size */
+.hover_element:hover {
+  transform: scale(1.05); 
+}
+
+.container-bg-1 {
+  background-color: rgba(119, 119, 119, 0.404);
+  padding: 2%;
+}
+
+.container-bg-2 {
+  background-color: rgba(31, 31, 31, 0.747);
+  padding: 2%;
+  margin-bottom: 20px;
+}
+
+.header-text {
+  color: rgb(36, 42, 43);
+  font-weight: 500;
+}
+
+.sub-header-text {
+  color: rgb(204, 204, 204);
+  font-weight: 500;
+}
+
+.sub-text {
+  color: rgb(255, 255, 255);
+}
+
+.sub-text-2 {
+  color: rgb(167, 167, 167);
+  size: 10px;
+}
+
+.form-container {
+  padding-top: 25px;
+}
+
+
+
+
+
+
+
+
+
+
+.hide {
+  opacity: 0;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-out {
+  opacity: 1;
+  animation: fadeOut 1s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
   

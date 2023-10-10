@@ -17,7 +17,7 @@ export const Card = ({className, courseName, description, header, institution}: 
         <div className="card-header">{header}</div>
             <div className="card-body">
                 <h5 className="card-title">{courseName}</h5>
-                <p className="card-text">{description}</p>
+                <p className="card-text" style={{fontSize: "15px"}}>{description}</p>
             </div>
             <div className="card-body">
               <a href={link} target="_blank" className="card-link text-light">Browse on Google</a>

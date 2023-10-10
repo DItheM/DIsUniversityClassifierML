@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { DropdownInput } from './DropdownInput'
 import LineChartComponent from './LineChartComponent';
+import demImage from '../assets/p1.png';
 
 export const PredictDemand = () => {
 
@@ -13,30 +14,48 @@ export const PredictDemand = () => {
   const [datasets, setDatasets] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [selectedRole, setSelectedRole] = useState("");
+
+  const [showAnimationDesc, setShowAnimationDesc] = useState(false);
+  const [showAnimationResults, setShowAnimationResults] = useState(false);
+  const [showAnimationOutResults, setShowAnimationOutResults] = useState(false);
+
+  useEffect(() => {
+    setShowAnimationDesc(true);
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoaded(false);
-    setLoading(true);
-    setIsPressed(true);
+    const fetchData = () => {
+      fetch('http://localhost:5000/predict_demand', {
+        method: 'POST',
+        body: formData,
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse the response as JSON
+      })
+      .then((data) => {
+        setJsonData(data)
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Fetch error:', error);
+        setLoading(false);
+        setIsPressed(false);
+      });
+    }
 
-    fetch('http://localhost:5000/predict_demand', {
-      method: 'POST',
-      body: formData,
-    }).then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json(); // Parse the response as JSON
-    })
-    .then((data) => {
-      setJsonData(data)
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error('Fetch error:', error);
-      setLoading(false);
-      setIsPressed(false);
-    });
+    if (isPressed == false) {
+      setIsLoaded(false);
+      setLoading(true);
+      setIsPressed(true);
+      fetchData();
+    } else {
+      setShowAnimationOutResults(true);
+      timeOut(() => {setIsLoaded(false); setLoading(true); setIsPressed(true); fetchData(); setShowAnimationResults(false); setShowAnimationOutResults(false);}, 1000);
+    }
   };
   
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -49,6 +68,12 @@ export const PredictDemand = () => {
     // Update the state with the modified copy
     setFormData(newFormData);
   };
+
+  const timeOut = (myFunction: () => void, time: number) => {
+    const timeoutId = setTimeout(myFunction, time);
+    return () => clearTimeout(timeoutId);
+  }
+
 
     const job_roles = ["Software Developer/Engineer",
     "System Administrator", 
@@ -86,9 +111,12 @@ export const PredictDemand = () => {
             borderColor: colors
           },
         ];
+        const selected_role = formData.get("job_title");
+        setSelectedRole(typeof selected_role === 'string' ? selected_role : "");
         setLabels(labels);
         setDatasets(datasets);
         setIsLoaded(true);
+        setShowAnimationResults(true);
       }
     }, [jsonData])
 
@@ -104,19 +132,31 @@ export const PredictDemand = () => {
 
 
   return (
-    <div>
+    <div className={showAnimationDesc ? 'fade-in' : 'hide'}>
+      <div className="container-bg-1 rounded hover_element">
+        <div className="row">
+            <div className="col-md-6">
+              <h1 className='header-text'>Job Role Demand Prediction</h1>
+              <p className='sub-text'>Unlock your career potential. Get insights into job demand: Check past trends, predict the future, and prepare for what lies ahead in your chosen field.</p>
+            </div>
+            <div className="col-md-6">
+                <img src={demImage} alt="Image" className="img-fluid float-end" width='50%'/>
+            </div>
+        </div>
+      </div>
 
-        <h1>Predict Demand</h1>
-
+      <div className="form-container">
         <form className="input-group mb-3" onSubmit={handleSubmit}>
             <DropdownInput defaultMsg='Select Job Role' options={job_roles} name='job_title' handleChange={handleSelectChange}/>
-            <button className="btn btn-outline-secondary mb-3" type="submit">Predict Demand</button>
+            <button className="btn btn-outline-dark mb-3" type="submit">Predict Demand</button>
         </form>
+      </div>
 
         {(!loading && isPressed) && (
-            <div>
+            <div className={showAnimationResults ? 'fade-in' : 'hide'}>
+              <div className={showAnimationOutResults ? 'fade-out' : ''}>
                 <div className="card text-center" style={{marginTop: "10px", marginBottom: "20px"}}>
-                    <h5 className="card-title card-header">Demand Chart</h5>
+                    <h5 className="card-title card-header">Demand Chart For <b><i>{selectedRole}</i></b></h5>
                     <div className="card-body">  
                     {(isLoaded) && (
                       <LineChartComponent labels={labels} datasets={datasets} />
@@ -133,6 +173,7 @@ export const PredictDemand = () => {
                         <h3 className={setColor()}>{jsonData.direction} {jsonData.change}%</h3>
                     </div>
                 </div>
+              </div>
             </div>
             
         )}
