@@ -1,7 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { DropdownInput } from './DropdownInput'
 import LineChartComponent from './LineChartComponent';
-import demImage from '../assets/p1.png';
+import demImage from '../assets/demand_pic.png';
 
 export const PredictDemand = () => {
 

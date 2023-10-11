@@ -4,11 +4,15 @@ flask
 flask_cors
 pandas
 numpy
-sklearn
+sklearn = 1.2.2
 torch
 simpletransformers
 matplotlib
 react
 bootstrap
 chart.js
+react-bootstrap
 
+extract the models.rar here
+
+run react server and flask server together

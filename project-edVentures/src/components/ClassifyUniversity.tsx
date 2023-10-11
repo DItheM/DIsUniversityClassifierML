@@ -127,7 +127,7 @@ export const ClassifyUniversity = () => {
             <DropdownInput defaultMsg='Select Quality' options={quality_data} name='quality' handleChange={handleSelectChange}/>
             <span className="input-group-text mb-3">$</span>
             <DropdownInput defaultMsg='Select Budget' options={budget_data} name='budget' handleChange={handleSelectChange}/>
-            <button className="btn btn-outline-dark mb-3" type="submit">Classify University</button>
+            <button className="btn btn-outline-dark mb-3" type="submit">Find University</button>
         </form>
       </div>
 
